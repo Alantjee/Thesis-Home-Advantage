@@ -1,0 +1,422 @@
+
+library(stringr)
+library(plyr)
+library(dplyr)
+setwd("C:/Documents/thesis/datasets")
+SPI <- read.csv("./Spi.csv")
+library(lubridate)
+library(tidyr)
+library(stringr)
+library(tidyverse)
+library(qwraps2)
+#install.packages("gridExtra")
+library(gridExtra)
+install.packages("stargazer")
+library(stargazer)
+SPI
+descriptives <- data.frame(stargazer(important_stats), important_stats)
+
+SPI$date <- as.Date(SPI$date)
+
+SPI <- SPI %>% filter(date > "2018-07-01" & date < "2021-03-25")
+SPI <- SPI %>% filter(league %in% c("Belgian Jupiler League", "Dutch Eredivisie", "French Ligue 1", "Turkish Turkcell Super Lig", "Barclays Premier League", 
+                                    "Portuguese Liga", "Spanish Primera Division", "German Bundesliga", "Italy Serie A"))
+colnames(SPI)[which(names(SPI) == "team1")] <- "HomeTeam"
+colnames(SPI)[which(names(SPI) == "team2")] <- "AwayTeam"
+
+
+#SPI <- SPI[2:23]
+#SPI <- subset( SPI, select = -c(league_id, ))
+#Data <- subset( Data, select = -a )
+
+
+
+SPI <- SPI[!is.na(SPI$score1),]
+
+SPI <- SPI %>% 
+  mutate(HomeTeam = str_replace_all(HomeTeam, "Sporting CP", "Sp Lisbon")) %>%  
+  mutate(HomeTeam = str_replace_all(HomeTeam, "Sporting de Charleroi", "Charleroi" )) %>% 
+  mutate(HomeTeam = str_replace_all(HomeTeam, "AZ", "AZ Alkmaar" )) %>%
+  mutate(HomeTeam = str_replace_all(HomeTeam, "PSV EIndhoven", "PSV Eindhoven" )) %>%
+  mutate(HomeTeam = str_replace_all(HomeTeam, "RKC", "Waalwijk" ) )%>%  
+  mutate(HomeTeam = str_replace_all(HomeTeam, "NAC", "NAC Breda" )) %>%
+  mutate(HomeTeam = str_replace_all(HomeTeam, "Sparta", "Sparta Rotterdam")) %>%
+  mutate(HomeTeam = str_replace_all(HomeTeam, "Girona FC", "Girona"))
+  
+
+
+results18_19 <- read.csv("./2018/Results2018-19.csv")
+results19_20 <- read.csv("./2019/Results2019-20.csv")
+results20_21 <- read.csv("./2020/Results2020-21.csv")
+moderator18_19 <- read.csv("./2018/transfermarkt3good.csv")
+moderator19_20 <- read.csv("./2019/transfermarkt2good.csv")
+moderator20_21 <- read.csv("./2020/transfermarktgood.csv")
+moderator18_19 <-  moderator18_19[ , -which(names(moderator18_19) %in% c("season"))]
+moderator19_20 <-  moderator19_20[ , -which(names(moderator19_20) %in% c("season"))]
+moderator20_21 <-  moderator20_21[ , -which(names(moderator20_21) %in% c("season"))]
+colnames(moderator18_19) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
+colnames(moderator19_20) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
+colnames(moderator20_21) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
+#results18_19 <-  results18_19[ , -which(names(results18_19) %in% c("time"))]
+results19_20 <-  results19_20[ , -which(names(results19_20) %in% c("Time"))]
+results20_21 <- results20_21[ , -which(names(results20_21) %in% c("Time"))]
+results18_19 <- results18_19[1:22]
+results19_20 <- results19_20[1:22]
+results20_21 <- results20_21[1:22]
+
+results18_19$club <- results18_19$HomeTeam 
+results19_20$club <- results19_20$HomeTeam 
+results20_21$club <- results20_21$HomeTeam 
+results18_19$club2 <- results18_19$AwayTeam
+results19_20$club2 <- results19_20$AwayTeam
+results20_21$club2 <- results20_21$AwayTeam
+moderator18_19$club2 <- moderator18_19$club
+moderator19_20$club2 <- moderator19_20$club
+
+moderator20_21$club2 <- moderator20_21$club
+merge18_19 <- left_join(results18_19, moderator18_19, by = "club")
+merge19_20 <- left_join(results19_20, moderator19_20, by = "club")
+merge20_21 <- left_join(results20_21, moderator20_21, by = "club")
+merge18_19$club2 <- merge18_19$AwayTeam
+merge19_20$club2 <- merge19_20$AwayTeam
+merge20_21$club2 <- merge20_21$AwayTeam
+merge18_19 <- left_join(merge18_19, moderator18_19, by = "club2")
+merge19_20 <- left_join(merge19_20, moderator19_20, by = "club2")
+merge20_21 <- left_join(merge20_21, moderator20_21, by = "club2")
+df_results <- rbind(merge18_19, merge19_20, merge20_21)
+#df_results colnames(X) <- c("good", "better")
+SPI$Date <- SPI$date
+SPI$Date <- as.Date(SPI$Date)
+str(full_dataset_alan)
+df_results$Date <- as.Date(df_results$Date, format = "%d/%m/%Y")
+Full_dataset_alan <- left_join(df_results, SPI, by = c("Date", "HomeTeam"))
+Full_dataset_alan <- Full_dataset_alan[ , -which(names(Full_dataset_alan) %in% c("Div", "HTR", "HTHG", "HTAG", "club.x","club2.x", "season.y", "covid.x","covid.y" ,"club.y","club2","AwayTeam.y" ,"club2.y", "club.y","covid_occupancy.y", "covid_occupancy.x", "date", "date.y", "league_id", "AwayTeam.y", "score1", "score2", "stadium_size.y", "occupancy.y", "avg_attendance.y"))]
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_age_home.x'] <- 'avg_age_home'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_age_home.y'] <- 'avg_age_away'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'players_used_home.x'] <- 'players_used_home'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'players_used_home.y'] <- 'players_used_away'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'AwayTeam.x'] <- 'AwayTeam'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'foreigners_home.x'] <- 'foreigners_home'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'foreigners_home.y'] <- 'foreigners_away'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_attendance.x'] <- 'avg_attendance'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'stadium_size.x'] <- 'stadium_size'
+names(Full_dataset_alan)[names(Full_dataset_alan) == 'occupancy.x'] <- 'occupancy'
+full_dataset_alan <- Full_dataset_alan %>% mutate(yel_card_spread = HY - AY, rating_diff = spi1-spi2, xg_diff = xg1 - xg2, age_diff = avg_age_home - avg_age_away, red_card_spread = HR - AR, importance_diff = importance1 - importance2  )
+full_dataset_alan <- full_dataset_alan %>% mutate(covid = ifelse(Date > "2020-04-01", 1, 0))
+full_dataset_alan <- full_dataset_alan %>% mutate(home_win = ifelse(FTHG > FTAG, 1, 0))
+full_dataset_alan <- full_dataset_alan %>% mutate(away_win = ifelse(FTHG < FTAG, 1, 0))
+full_dataset_alan <- full_dataset_alan %>% mutate(draw = ifelse(FTHG == FTAG, 1, 0))
+full_dataset_alan <- full_dataset_alan %>% mutate(home_points = ifelse(FTHG > FTAG, 3, ifelse(FTHG < FTAG, 0, 1)))
+full_dataset_alan <- full_dataset_alan %>% mutate(away_points = ifelse(FTHG < FTAG, 3, ifelse(FTHG > FTAG, 0, 1)))
+full_dataset_alan <- full_dataset_alan %>% mutate(yel_card_ratio_home = HY/HF)
+full_dataset_alan <- full_dataset_alan %>% mutate(red_card_ratio_home = HY/HF)
+full_dataset_alan <- full_dataset_alan %>% mutate(yel_card_ratio_away = AY/AF)
+full_dataset_alan <- full_dataset_alan %>% mutate(red_card_ratio_away = AR/AF)
+full_dataset_alan <- full_dataset_alan %>% mutate(home_points_percentage_total = home_points/(home_points + away_points))
+full_dataset_alan <- full_dataset_alan %>% mutate(away_points_percentage_total = away_points/(home_points + away_points))
+full_dataset_alan <- full_dataset_alan %>% mutate(shots_ratio_home = HST/HS)
+full_dataset_alan <- full_dataset_alan %>% mutate(shots_ratio_away = AST/AS)
+full_dataset_alan <- full_dataset_alan %>% mutate(goal_diff = FTHG - FTAG)
+full_dataset_alan <- full_dataset_alan %>% mutate(diff_point = home_points - away_points)
+full_dataset_alan <- full_dataset_alan %>% mutate(foul_spread = HF - AF)
+full_dataset_alan <- full_dataset_alan %>% mutate(foreigners_spread = foreigners_home - foreigners_away)
+write.csv(full_dataset_alan, "C:/Documents/thesis/datasets/final_dataset.csv", row.names = FALSE, sep = ";")
+
+covid_data <- full_dataset_alan %>% filter(covid == 1)
+non_covid_data <- full_dataset_alan %>% filter(covid != 1)
+
+win_home_covid <- mean(covid_data$home_win) 
+win_home_noncovid <- mean(non_covid_data$home_win)
+win_away_covid <- mean(covid_data$away_win)
+win_away_noncovid <- mean(non_covid_data$away_win)
+
+
+situation <- c("Home win covid","Away win covid","Home win pre covid", "Away win pre covid")
+meanwin <- c(win_home_covid,win_away_covid, win_home_noncovid, win_away_noncovid)
+
+df_mean_win <- data.frame(situation, meanwin)
+
+plot_mean_win <- plot(ggplot(df_mean_win, aes(x = situation, y = meanwin)) +
+                           geom_bar(stat='identity')) +
+  xlab("Home vs Away wins") +
+  ylab("Average wins") +
+  ggtitle("Wins home and away pre and post covid") +
+  theme_minimal()
+plot_mean_win
+
+points_home_covid <-  mean(covid_data$home_points)
+points_home_noncovid <- mean(non_covid_data$home_points)
+points_away_covid <- mean(covid_data$away_points)
+points_away_noncovid <- mean(non_covid_data$away_points)
+
+situation2 <- c("Average points home covid", "Average points away covid", "Average points home pre covid","Average points away pre covid")
+meanpoints2 <- c(points_home_covid ,points_away_covid,points_home_noncovid ,points_away_noncovid)
+
+df_mean_points <- data.frame(situation2, meanpoints2)
+
+plot_mean_points <- plot(ggplot(df_mean_points, aes(x = situation2, y = meanpoints2)) +
+                        geom_bar(stat='identity')) +
+  xlab("Home vs Away points") +
+  ylab("Average points") +
+  ggtitle("Points home and away pre and post covid") +
+  theme_minimal()
+plot_mean_points
+
+yel_card_spread_covid <-  mean(covid_data$yel_card_spread)
+yel_card_spread_noncovid <- mean(non_covid_data$yel_card_spread)
+foul_spread_covid <- mean(covid_data$foul_spread)
+non_covid_data <- non_covid_data %>% filter(!is.na(foul_spread))
+foul_spread_noncovid <- mean(non_covid_data$foul_spread)
+
+
+situation3 <- c("Diff yellow cards covid", "diff yellow cards  pre covid", "diff fouls covid","diff fouls pre covid")
+meanspread <- c(yel_card_spread_covid , yel_card_spread_noncovid,foul_spread_covid ,foul_spread_noncovid)
+
+df_mean_spread <- data.frame(situation3, meanspread)
+table(df_mean_spread)
+plot_mean_card_foul_spread <- plot(ggplot(df_mean_spread, aes(x = situation3, y = meanspread)) +
+                           geom_bar(stat='identity')) +
+  xlab("Cards and fouls distribution") +
+  ylab("Spread") +
+  ggtitle("Difference in fouls and cards between home and away teams before and after covid") +
+  theme_minimal()
+plot_mean_card_foul_spread
+
+home_goals_covid <-  mean(covid_data$FTHG)
+home_goals_noncovid <- mean(non_covid_data$FTHG)
+non_covid_data <- non_covid_data %>% filter(!is.na(FTHG))
+away_goals_covid <- mean(covid_data$FTAG)
+away_goals_noncovid <- mean(non_covid_data$FTAG)
+non_covid_data <- non_covid_data %>% filter(!is.na(HY))
+home_cards_covid <-  mean(covid_data$HY)
+home_cards_noncovid <- mean(non_covid_data$HY)
+away_cards_covid <- mean(covid_data$AY)
+away_cards_noncovid <- mean(non_covid_data$AY)
+away_red_covid  <- mean(covid_data$AR)
+away_red_non_covid <- mean(non_covid_data$AR)
+non_covid_data <- non_covid_data %>% filter(!is.na(AR))
+home_red_covid <- mean(covid_data$HR)
+home_red_noncovid <- mean(non_covid_data$HR)
+home_fouls_covid  <- mean(covid_data$HF)
+home_fouls_noncovid <- mean(non_covid_data$HF)
+away_fouls_covid  <- mean(covid_data$AF)
+away_fouls_noncovid <- mean(non_covid_data$AF)
+
+stargazer(plot_mean_win)
+mean(covid_data$away_win)
+mean(covid_data$draw)
+mean(covid_data$home_points)
+mean(covid_data$away_points)
+mean(covid_data$fouls_spread)
+mean(covid_data$yel_card_spread)
+mean(covid_data$red_card_spread)
+table <- as.data.frame(x, y)
+plot_mean <- ggplot(table, )
+y<- mean(non_covid_data$home_win) 
+mean(non_covid_data$away_win)
+mean(non_covid_data$draw)
+mean(non_covid_data$home_points)
+mean(non_covid_data$away_points)
+mean(non_covid_data$fouls_spread)
+mean(non_covid_data$yel_card_spread)
+mean(non_covid_data$red_card_spread)
+mean(non_covid_data$foul_card_ratio_home)
+mean(non_covid_data$foul_card_ratio_away)
+mean(full_dataset$foul_card_ratio_away)
+mean(covid_data$foul_card_ratio_away)
+
+
+#our_summary1 <-
+#  list("Goals home" =
+ #        list("min"       = ~ min(FTHG),
+  #            "max"       = ~ max(FTHG),
+   #           "mean (sd)" = ~ qwraps2::mean_sd(FTHG)),
+    #   "Goals away" =
+     #    list("min"       = ~ min(FTAG),
+      #        "median"    = ~ median(FTAG),
+       #       "max"       = ~ max(FTAG),
+        #      "mean (sd)" = ~ qwraps2::mean_sd(FTAG)),
+      # "Points home" =
+      #   list("min"       = ~ min(home_points),
+      #        "max"       = ~ max(home_points),
+      #        "mean (sd)" = ~ qwraps2::mean_sd(home_points)),
+      # "Points away" =
+      #   list("min" = ~ min(away_points),
+      #        "max"  = ~ max(away_points),
+      #        "mean (sd)"  = ~ qwraps2::mean_sd(away_points)))
+#season18_19 <- full_dataset_alan %>% filter(season == 2018)
+#season19_20 <- full_dataset_alan %>% filter(season == 2019)
+#season20_21 <- full_dataset_alan %>% filter(season == 2020)
+#ghost_games <- full_dataset_alan %>% filter(covid == 1)
+#non_ghost_games <- full_dataset_alan %>% filter(covid !=1)
+
+
+#mci <- mean_ci(season18_19$diff_point)
+#str(mci)
+
+##  'qwraps2_mean_ci' Named num [1:3] 20.1 18 22.2
+##  - attr(*, "names")= chr [1:3] "mean" "lcl" "ucl"
+##  - attr(*, "alpha")= num 0.05
+#mci
+## [1] "20.09 (18.00, 22.18)"
+#print(mci, show_level = TRUE)
+## [1] "20.09 (95% CI: 18.00, 22.18)"  
+
+
+# difference in means
+#mpvals <-
+ # sapply(
+#    list(lm(home_points ~ season,  data = full_dataset_alan),
+ #        lm(diff_point ~ season, data = full_dataset_alan.),
+  #       lm(yel_card_spread ~ season,   data = full_dataset_alan)),
+  #  extract_fpvalue)
+
+#whole <- summary_table(full_dataset_alan, our_summary1)
+#full_dataset_alan$season <- as.factor(full_dataset_alan$season)
+#whole_by_season <- summary_table(dplyr::group_by(full_dataset_alan, season), our_summary1 )
+
+#mpvals <-
+ # sapply(
+  #  list(lm(home_points ~ season,  data =full_dataset_alan),
+  #       lm(diff_point ~ season, data =full_dataset_alan.),
+   #      lm(yel_card_spread ~ season,   data =full_dataset_alan)),
+   # extract_fpvalue)
+#summary_table(full_dataset_alan)
+
+#plot(whole_by_season)
+
+#png("test.png", height=1000, width=200)
+#p<-tableGrob(whole_by_season)
+#grid.arrange(p)
+#dev.off()
+#mean()
+#x <- as.string(SPI$HomeTeam)
+#y <- full_results$HomeTeam
+
+#x<- unique(SPI$HomeTeam)
+#y <- unique(full_results$HomeTeam)
+#print(x)
+
+
+#both <- x[x %in% y] # in both, same as call: intersect(first, second)
+#onlyfirst <- x[!x %in% y] # only in 'first', same as: setdiff(first, second)
+#onlysecond <- y[!y %in% x] # only in 'second', same as: setdiff(second, first)
+#length(both)
+#length(onlyfirst)
+#length(onlysecond)
+#print
+
+#printList <- function(list) {
+
+# for (item in 1:length(list)) {
+
+#  print(head(list[[item]]))
+
+#  }
+#}
+
+#printList(both)
+library(tree)
+printList(onlyfirst)
+view(onlyfirst )
+
+model <- lm(home_points ~ covid + occupancy, full_dataset)
+summary(model)
+model <- lm(home_points ~ covid + occupancy + covid*occupancy, full_dataset)
+summary(model)
+model <- lm(home_points ~ covid + occupancy + covid*occupancy + spi1 + spi2, full_dataset)
+summary(model)
+model <- lm(diff_points ~ covid + occupancy + covid*occupancy + spi1 + spi2 + avg_age + covid*avg_age + foreigners_used + covid*foreigners_used + covid*percentage_foreigners_used_away + percentage_foreigners_used_away + avg_age_away + covid*avg_age_away  + Importance_difference + importance1 + importance2 , full_dataset)
+logmodel <- glm(home_win ~ covid + occupancy + covid*occupancy + spi1 + spi2 + avg_age + covid*avg_age + foreigners_used + covid*foreigners_used + covid*percentage_foreigners_used_away + percentage_foreigners_used_away + avg_age_away + covid*avg_age_away  + Importance_difference + importance1 + importance2 , full_dataset, family=binomial)
+summary(model)
+summary(logmodel)
+tree <- tree(home_win ~ covid + occupancy  + spi1 + spi2 + avg_age  + foreigners_used  + percentage_foreigners_used_away + avg_age_away  + Importance_difference + importance1 + importance2 , full_dataset)
+view(tree)
+print(tree)
+plot(tree)
+summary(logmodel)
+logmodel <- glm(home_win ~ covid + occupancy + covid*occupancy + spi1 + spi2 + avg_age + covid*avg_age + foreigners_used + covid*foreigners_used + covid*percentage_foreigners_used_away + percentage_foreigners_used_away + avg_age_away + covid*avg_age_away  + Importance_difference + importance1 + importance2 + League, full_dataset, family="poisson")
+summary(logmodel)
+
+summary(full_dataset$red_card_spread)
+mean(full_dataset$red_card_spread)
+sd(full_dataset$red_card_spread)
+length(full_dataset$red_card_spread)
+error <- qt(0.975,df=length(full_dataset$red_card_spread)-1)*sd(full_dataset$red_card_spread)/sqrt(length(full_dataset$red_card_spread))   
+left <- mean(full_dataset$red_card_spread) - error
+right <- mean(full_dataset$red_card_spread) + error
+
+summary(full_dataset$yel_card_spread)
+mean(full_dataset$yel_card_spread)
+sd(full_dataset$yel_card_spread)
+length(full_dataset$yel_card_spread)
+error <- qt(0.975,df=length(full_dataset$yel_card_spread)-1)*sd(full_dataset$yel_card_spread)/sqrt(length(full_dataset$yel_card_spread))   
+left <- mean(full_dataset$yel_card_spread) - error
+right <- mean(full_dataset$yel_card_spread) + error
+
+summary(full_dataset$fouls_spread)
+mean(full_dataset$fouls_spread)
+sd(full_dataset$fouls_spread)
+length(full_dataset$fouls_spread)
+error <- qt(0.975,df=length(full_dataset$fouls_spread)-1)*sd(full_dataset$fouls_spread)/sqrt(length(full_dataset$fouls_spread))   
+left <- mean(full_dataset$fouls_spread) - error
+right <- mean(full_dataset$fouls_spread) + error
+
+install.packages("ggpubr")
+library(ggpubr)
+plot(ggplot(full_dataset))
+ggqqplot(full_dataset$fouls_spread)
+shapiro.test(full_dataset$fouls_spread)
+ggqqplot(full_dataset$FTHG)
+ggqqplot(full_dataset$FTAG)
+ggqqplot(full_dataset$yel_card_spread)
+ggqqplot(full_dataset$red_card_spread)
+mean(full_dataset$home_win) 
+mean(full_dataset$away_win)
+mean(full_dataset$draw)
+mean(full_dataset$home_points)
+mean(full_dataset$away_points)
+mean(season18_19$fouls_spread)
+mean(season19_20$fouls_spread)
+mean(season20_21$fouls_spread)
+mean(season18_19$yel_card_spread)
+mean(season19_20$yel_card_spread)
+mean(season20_21$yel_card_spread)
+mean(season18_19$red_card_spread)
+mean(season19_20$red_card_spread)
+mean(season20_21$red_card_spread)
+
+
+full_dataset.pca <- princomp(full_dataset)
+str(full_dataset)
+
+
+mean(full_dataset$foul_card_ratio_diff)
+
+mean(full_dataset$foul_card_ratio_away)
+
+install.packages("lavaan")
+library(lavaan)
+install.packages("semPlot")
+library("semPlot")
+
+
+set.seed(1234)
+
+
+standard_full_dataset <- full_dataset %>% mutate_at(c("red_card_spread","fouls_spread","yel_card_spread" ,"foul_card_ratio_away","foul_card_ratio_home"), ~(scale(.) %>% as.vector))
+
+model1sem <- '
+       referee bias=~  fouls_spread +  red_card_spread + foul_card_ratio_diff + yel_card_spread 
+
+
+'
+fit1 <- sem(model1sem, data = standard_full_dataset)
+summary(fit1, standardized = TRUE)
+
+fitMeasures(fit1, c("cfi", "rmsea", "srmr"))
+semPaths(fit1, what="paths", whatLabels = "stand", rotation = 1)
+
+setwd("C:/Documents/thesis/datasets")
+
+moderator_data_18 <- read.csv("")
