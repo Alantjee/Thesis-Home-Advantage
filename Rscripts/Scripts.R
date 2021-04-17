@@ -1,3 +1,6 @@
+library(asht)
+library(pander)
+library(WMWssp)
 library(lavaan)
 library(ggpubr)
 library(stringr)
@@ -261,8 +264,56 @@ x24
 x25 <- wilcox.test(covid_data$GoalDifference, non_covid_data$GoalDifference)
 x25
 
+a<- mean(covid_data$YellowCardDifference)
+b<- mean(non_covid_data$YellowCardDifference)
+c<- mean(non_covid_data$RedCardDifference)
+d<- mean(covid_data$RedCardDifference)
+e<- mean(non_covid_data$FoulDifference)
+f<- mean(covid_data$FoulDifference)
+g <- mean(non_covid_data$percentage_points_away)
+h <- mean(covid_data$percentage_points_away)
+i <- mean(non_covid_data$GoalDifference)
+j <- mean(covid_data$GoalDifference)
+
+k <- mean(non_covid_data$ExpectedGoalsDifference)
+L <- mean(covid_data$ExpectedGoalsDifference)
+M <- wmwTest(covid_data$YellowCardDifference, non_covid_data$YellowCardDifference, alternative = c("two.sided", "less", "greater"))
+N <- wmwTest(covid_data$RedCardDifference, non_covid_data$RedCardDifference, alternative = c("two.sided", "less", "greater"))
+O <- wmwTest(covid_data$ExpectedGoalsDifference, non_covid_data$ExpectedGoalsDifference, alternative = c("two.sided", "less", "greater"))
+P <- wmwTest(covid_data$FoulDifference, non_covid_data$FoulDifference, alternative = c("two.sided", "less", "greater"))
+Q <- wmwTest(covid_data$GoalDifference, non_covid_data$GoalDifference, alternative = c("two.sided", "less", "greater"))
+R <- wmwTest(covid_data$PercentagePointsHome, non_covid_data$PercentagePointsHome, alternative = c("two.sided", "less", "greater"))
+S <- wmwTest(covid_data$HY, non_covid_data$HY, alternative = c("two.sided", "less", "greater"))
+t <- wmwTest(covid_data$AY, non_covid_data$AY, alternative = c("two.sided", "less", "greater"))
+U <- wmwTest(covid_data$HR, non_covid_data$HR, alternative = c("two.sided", "less", "greater"))
+V <- wmwTest(covid_data$AR, non_covid_data$AR, alternative = c("two.sided", "less", "greater"))
+W <- wmwTest(covid_data$AF, non_covid_data$AF, alternative = c("two.sided", "less", "greater"))
+X <- wmwTest(covid_data$HF, non_covid_data$HF, alternative = c("two.sided", "less", "greater"))
+Y <- wmwTest(covid_data$FTHG, non_covid_data$FTHG, alternative = c("two.sided", "less", "greater"))
+Z <- wmwTest(covid_data$FTAG, non_covid_data$FTAG, alternative = c("two.sided", "less", "greater"))
+A <- wmwTest(covid_data$home_points, non_covid_data$home_points, alternative = c("two.sided", "less", "greater"))
+B <- wmwTest(covid_data$away_points, non_covid_data$away_points, alternative = c("two.sided", "less", "greater"))
+C <- wmwTest(covid_data$HS, non_covid_data$HS, alternative = c("two.sided", "less", "greater"))
+D <- wmwTest(covid_data$AS, non_covid_data$AS, alternative = c("two.sided", "less", "greater"))
+E <- wmwTest(covid_data$HST, non_covid_data$HST, alternative = c("two.sided", "less", "greater"))
+G <- wmwTest(covid_data$AST, non_covid_data$AST, alternative = c("two.sided", "less", "greater"))
+H <- wmwTest(covid_data$xg1, non_covid_data$xg1, alternative = c("two.sided", "less", "greater"))
+I <- wmwTest(covid_data$xg2, non_covid_data$xg2, alternative = c("two.sided", "less", "greater"))
+J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points_away, alternative = c("two.sided", "less", "greater"))
+K <- chisq.test(covid_data$home_win, non_covid_data$home_win)
+
+table(count(non_covid_data$Result, covid_data$Result))
+non_covid_data$Result <- as.factor(non_covid_data$Result)
+count(non_covid_data$Result)
+#percentage home win and percentage away win
+
+x<- pander(R)
+prop.test(x = c(1014, 1210), n = c(1539, 2334),
+          alternative = "two.sided")
+
 
 hist(covid_data$HST)
+
 
 ggqqplot(covid_data$ExpectedGoalsDifference)
 hist(covid_data$ExpectedGoalsDifference)
