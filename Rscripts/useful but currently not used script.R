@@ -252,3 +252,60 @@ prop.test(x = c(1210, 1014), n = c(2334, 1539),
 
 ts = replicate(1000,t.test(covid_data$FTAG,non_covid_data$FTAG)$statistic)
 range(ts)
+
+
+table(count(non_covid_data$Result, covid_data$Result))
+non_covid_data$Result <- as.factor(non_covid_data$Result)
+count(non_covid_data$Result)
+#percentage home win and percentage away win
+
+
+win_home_covid <- mean(covid_data$home_win)
+win_away_covid <- mean(covid_data$away_win)
+win_home_noncovid <- mean(non_covid_data$home_win)
+win_away_noncovid <- mean(non_covid_data$away_win)
+sd_home_covid <- sd(covid_data$home_win)
+sd_away_covid <- sd(covid_data$away_win)
+sd_home_noncovid <- sd(non_covid_data$home_win)
+sd_away_noncovid <- sd(non_covid_data$away_win)
+se_home_covid <- sd_home_covid/sqrt(length(covid_data))
+se_away_covid <- sd_away_covid/sqrt(length(covid_data))
+se_home_noncovid <- sd_home_noncovid/sqrt(length(non_covid_data))
+se_away_noncovid <- sd_away_noncovid/sqrt(length(non_covid_data))
+situation <- factor(c("Home win covid","Away win covid","Home win pre covid", "Away win pre covid"))
+meanwin <- c(win_home_covid,win_away_covid, win_home_noncovid, win_away_noncovid)
+se <- c(se_home_covid, se_away_covid, se_home_noncovid, se_away_noncovid)
+df_mean_win <- cbind(situation, meanwin, se)
+df_mean_win <- data.frame(df_mean_win)
+str(df_mean_win)
+df_mean_win$situation <- factor(situation, levels = c("Home win pre covid","Away win pre covid","Home win covid", "Away win covid"))
+levels(df_mean_win$situation)
+df_mean_win
+plot_mean_win <- ggplot(df_mean_win, aes(x = situation, y = meanwin, 
+                                         ymin = meanwin-se, ymax = meanwin+se)) +
+  geom_bar(aes(color = situation), stat = "identity", fill ="white") + 
+  geom_errorbar(aes(color = situation), width = 0.2) + 
+  xlab("Home vs Away wins") +
+  ylab("Average wins") +
+  ggtitle("Wins home and away pre and post covid") +
+  theme_minimal()
+plot_mean_win
+
+
+
+mydata <- data.frame(result=as.factor(full_dataset_alan$Result),
+                     pre_post_covid = as.factor(full_dataset_alan$covid))
+
+mytab <- table(mydata)
+res <- chisq.test(mytab)
+
+stargazer(res,
+          type = "html",
+          out = "chisquare.html")
+# look at the table:
+mytab <- with(mydata,table(result,pre_post_covid)) 
+
+res$p.value
+res$estimate
+table(covid_data$away_win, covid_data$home_win)
+table(non_covid_data$away_win, non_covid_data$home_win)

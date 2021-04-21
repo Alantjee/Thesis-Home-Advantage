@@ -16,6 +16,9 @@ library(stargazer)
 library(psych)
 library(readr)
 library(sjPlot)
+library(caret)
+library(Hmisc)
+library(nortest)
 setwd("C:/Documents/thesis/datasets")
 SPI <- read.csv("./Spi.csv")
 
@@ -121,7 +124,7 @@ full_dataset_alan <-  full_dataset_alan[ , -which(names(full_dataset_alan) %in% 
 full_dataset_alan <- full_dataset_alan %>% mutate(crowdsize = ifelse(avg_attendance < 20000, "small", ifelse(avg_attendance > 20000 & avg_attendance < 400000, "medium", "large")))
 full_dataset_alan <- full_dataset_alan %>% mutate(crowd = ifelse(avg_attendance < 10000, "extrasmall", ifelse(avg_attendance > 10000 & avg_attendance < 20000, "small", ifelse(avg_attendance > 30000 & avg_attendance < 40000,"medium", ifelse(avg_attendance > 40000 & avg_attendance < 50000, "big", "large")))))
 full_dataset_alan <- full_dataset_alan %>% mutate(var = ifelse(season == 2018 & (league == "Barclays Premier League" | league == "Portuguese Liga"),0, 1))
-
+table(full_dataset_alan$Crowdsize)
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='yel_card_spread')] <- 'YellowCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='red_card_spread')] <- 'RedCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='foul_spread')] <- 'FoulDifference'
@@ -139,30 +142,28 @@ colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='avg_attendance')
 
 full_dataset_alan$AverageAttendance <- as.numeric(full_dataset_alan$AverageAttendance)
 as.numeric(gsub(",","",full_dataset_alan$AverageAttendance,fixed=TRUE))
+full_dataset_alan_standardized <- full_dataset_alan %>% mutate_if(is.numeric, scale)
+full_dataset_alan_standardized <- full_dataset_alan_standardized %>% mutate_if(is.integer, scale)
 
+model_variables <- full_dataset_alan[ , which(names(full_dataset_alan) %in%  c("GoalDifference", "YellowCardDifference", "RedCardDifference", "FoulDifference", "PercentagePointsHome"))]
+#nums <- unlist(lapply(full_dataset_alan, is.numeric))  
+#full_dataset_alan_numeric <- full_dataset_alan[ , nums]
+str(model_variables)
 
+corrmatrix <- cor(model_variables, method = "pearson", use = "complete.obs")
+#res2 <- rcorr(as.matrix(model_variables))
+plot(res2)
+view(res2)
+
+stargazer(res2, type = "html")
+stargazer(corrmatrix,
+          type = "html",
+          title = "Correlation Table", 
+          #order=c("PercentagePointsHome", "ExpectedGoalsDifference", "GoalDifference", "ForeignersShareDifference", "AgeDifference", "OccupancyRate", "AverageAttendance", "YellowCardDifference", "FoulDifference", "RedCardDifference", "RatingDifference", "ImportanceDifference"),
+          out="correlation.html")
 covid_data <- full_dataset_alan %>% filter(covid == 1)
 non_covid_data <- full_dataset_alan %>% filter(covid != 1)
 
-
-
-mydata <- data.frame(result=as.factor(full_dataset_alan$Result),
-                     pre_post_covid = as.factor(full_dataset_alan$covid))
-
-mytab <- table(mydata)
-res <- chisq.test(mytab)
-
-stargazer(res,
-          type = "html",
-          out = "chisquare.html")
-# look at the table:
-mytab <- with(mydata,table(result,pre_post_covid)) 
-
-res$p.value
-res$estimate
- table(covid_data$away_win, covid_data$home_win)
- table(non_covid_data$away_win, non_covid_data$home_win)
- 
  hist(foreigners_spread)
  hist(full_dataset_alan$foreigners_spread)
  hist(full_dataset_alan$age_diff)
@@ -171,47 +172,13 @@ res$estimate
  hist(full_dataset_alan$xg_diff)
  hist(full_dataset_alan$goal_diff)
  hist(full_dataset_alan$home_win)
-
-chisq.test(non_covid_data$Result, non_covid_data$away_win)
- prop.test(x = c(1210, 1014), n = c(2334, 1539), alternative = "less")
-summary(res)
-prop.test(x = C(), n, p = NULL, alternative = "two.sided",
-          correct = TRUE)
-
-win_home_covid <- mean(covid_data$home_win)
-win_away_covid <- mean(covid_data$away_win)
-win_home_noncovid <- mean(non_covid_data$home_win)
-win_away_noncovid <- mean(non_covid_data$away_win)
-sd_home_covid <- sd(covid_data$home_win)
-sd_away_covid <- sd(covid_data$away_win)
-sd_home_noncovid <- sd(non_covid_data$home_win)
-sd_away_noncovid <- sd(non_covid_data$away_win)
-se_home_covid <- sd_home_covid/sqrt(length(covid_data))
-se_away_covid <- sd_away_covid/sqrt(length(covid_data))
-se_home_noncovid <- sd_home_noncovid/sqrt(length(non_covid_data))
-se_away_noncovid <- sd_away_noncovid/sqrt(length(non_covid_data))
-situation <- factor(c("Home win covid","Away win covid","Home win pre covid", "Away win pre covid"))
-meanwin <- c(win_home_covid,win_away_covid, win_home_noncovid, win_away_noncovid)
-se <- c(se_home_covid, se_away_covid, se_home_noncovid, se_away_noncovid)
-df_mean_win <- cbind(situation, meanwin, se)
-df_mean_win <- data.frame(df_mean_win)
-str(df_mean_win)
-df_mean_win$situation <- factor(situation, levels = c("Home win pre covid","Away win pre covid","Home win covid", "Away win covid"))
-levels(df_mean_win$situation)
-df_mean_win
-plot_mean_win <- ggplot(df_mean_win, aes(x = situation, y = meanwin, 
-                                           ymin = meanwin-se, ymax = meanwin+se)) +
-                        geom_bar(aes(color = situation), stat = "identity", fill ="white") + 
-                        geom_errorbar(aes(color = situation), width = 0.2) + 
-  xlab("Home vs Away wins") +
-  ylab("Average wins") +
-  ggtitle("Wins home and away pre and post covid") +
-  theme_minimal()
-plot_mean_win
+model_variables %>% 
+      pairs.panels()
 
 
 
 
+shapiro.test(covid_data$ExpectedGoalsDifference)
 
 x1 <- wilcox.test(covid_data$FTHG, non_covid_data$FTHG)
 x1
@@ -297,22 +264,14 @@ C <- wmwTest(covid_data$HS, non_covid_data$HS, alternative = c("two.sided", "les
 D <- wmwTest(covid_data$AS, non_covid_data$AS, alternative = c("two.sided", "less", "greater"))
 E <- wmwTest(covid_data$HST, non_covid_data$HST, alternative = c("two.sided", "less", "greater"))
 G <- wmwTest(covid_data$AST, non_covid_data$AST, alternative = c("two.sided", "less", "greater"))
+J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points_away, alternative = c("two.sided", "less", "greater"))
+
 H <- wmwTest(covid_data$xg1, non_covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 I <- wmwTest(covid_data$xg2, non_covid_data$xg2, alternative = c("two.sided", "less", "greater"))
-J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points_away, alternative = c("two.sided", "less", "greater"))
-K <- chisq.test(covid_data$home_win, non_covid_data$home_win)
-
-table(count(non_covid_data$Result, covid_data$Result))
-non_covid_data$Result <- as.factor(non_covid_data$Result)
-count(non_covid_data$Result)
-#percentage home win and percentage away win
-
-x<- pander(R)
+l <- t.test(covid_data$xg1, non_covid_data$HG, paired = FALSE)
+x<- pander(l)
 prop.test(x = c(1014, 1210), n = c(1539, 2334),
           alternative = "two.sided")
-
-
-hist(covid_data$HST)
 
 
 ggqqplot(covid_data$ExpectedGoalsDifference)
@@ -330,4 +289,40 @@ mean(non_covid_data$xg1)
 mean(covid_data$xg1)
 mean(non_covid_data$xg2)
 mean(covid_data$xg2)
+ks.test(full_dataset_alan$YellowCardDifference, y='pnorm',alternative='two.sided')
 
+
+normality <- function(x){
+  ad.test(x)
+}
+ sapply(model_variables, normality)
+
+ 
+root<- function(x){
+  sqrt(x)
+}
+sapply(model_variables, root)
+
+summary(model_variables)
+
+#data check
+
+model_variables <- full_dataset_alan[ , which(names(full_dataset_alan) %in%  c("ImportanceDifference","GoalDifference","covid","VAR","RatingDifference","ImportanceDifference","ExpectedGoalsDifference","AgeDifference", "ForeignersShareDifference", "OccupancyRate","YellowCardDifference", "RedCardDifference", "FoulDifference", "PercentagePointsHome"))]
+str(model_variables)
+
+
+set.seed(123)
+model_variables$spl=sample.split(model_variables$covid,SplitRatio=0.7)
+train=subset(model_variables, full_dataset_alan$spl==TRUE)
+test=subset(model_variables, full_dataset_alan$spl==FALSE)
+summary(train)
+train <- train %>% filter(!is.na(ImportanceDifference))
+test <- test %>% filter(!is.na(ImportanceDifference))
+ggplot(train, aes(AgeDifference, GoalDifference ) )+
+  geom_point() +
+  stat_smooth()
+
+training.samples <- model_variables %>%
+  createDataPartition(p = 0.8, list = FALSE)
+train.data  <- model_variables[training.samples, ]
+test.data <- model_variables[-training.samples, ]

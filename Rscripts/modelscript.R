@@ -1,7 +1,7 @@
 set.seed(6708)
 
 model1 <- glm(home_win ~ covid  + occupancy + foreigners_spread + importance_diff + age_diff + rating_diff + occupancy * covid + age_diff * covid + foreigners_spread * covid, full_dataset_alan_standardized, family = "binomial" )
-model2 <- lm(goal_diff ~ covid  + occupancy + foreigners_spread + importance_diff + age_diff + rating_diff + occupancy * covid + age_diff * covid + foreigners_spread * covid, full_dataset_alan_standardized)
+model2 <- lm(GoalDifference ~ covid  + OccupancyRate + log(average_attendance) + ForeignersShareDifference + ImportanceDifference + AgeDifference + RatingDifference + OccupancyRate * covid + AgeDifference*  covid + ForeignersShareDifference * covid, model_variables)
 summary(model1)
 summary(model2)
 model3 <- lm(diff_point ~ covid  + occupancy + foreigners_spread + importance_diff + age_diff + rating_diff + occupancy * covid + age_diff * covid + foreigners_spread * covid, full_dataset_alan_standardized)
@@ -13,6 +13,24 @@ model_simple <- lm(goal_diff ~ covid, data = full_dataset_alan)
 summary(model_simple)
 model_logit_simple <- glm(home_win ~ covid, data = full_dataset_alan)
 summary(model_logit_simple)
+summary(model_variables)
+
+
+model_variables <- model_variables[!is.na(model_variables$ImportanceDifference),]
+
+model_variables$predicted <- predict(model2)
+model_variables$residuals <- residuals(model2)
+
+model_variables %>% 
+  gather(key = "iv", value = "x", -GoalDifference, -predicted, -residuals) %>%  # Get data into shape
+  ggplot(aes(x = x, y = GoalDifference)) +  # Note use of `x` here and next line
+  geom_segment(aes(xend = x, yend = predicted), alpha = .2) +
+  geom_point(aes(color = residuals)) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red") +
+  guides(color = FALSE) +
+  geom_point(aes(y = predicted), shape = 1) +
+  facet_grid(~ iv, scales = "free_x") +  # Split panels here by `iv`
+  theme_bw()
 
 summary(model1)
 summary(model2)
