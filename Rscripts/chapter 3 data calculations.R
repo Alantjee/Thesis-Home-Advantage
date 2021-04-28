@@ -106,10 +106,10 @@ J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points
 H <- wmwTest(covid_data$xg1, non_covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 I <- wmwTest(covid_data$xg2, non_covid_data$xg2, alternative = c("two.sided", "less", "greater"))
 l <- t.test(covid_data$xg1, non_covid_data$HG, paired = FALSE)
-x<- pander(l)
+x<- pander(I)
 prop.test(x = c(1014, 1210), n = c(1539, 2334),
           alternative = "two.sided")
-
+mean(non_covid_data$YellowCardDifference)
 
 ggqqplot(covid_data$ExpectedGoalsDifference)
 hist(covid_data$ExpectedGoalsDifference)

@@ -1,4 +1,4 @@
-set.seed(1)
+set.seed(1234)
 model_variables <- full_dataset_alan[ , which(names(full_dataset_alan) %in%  c("HY","AY","HF","HST","AF","HR","AR","AST","HS","AS","HC","AC","ShotsDifference","ShotsTargetDifference","CornerDifference","AverageAttendance","GoalDifference","covid","VAR","RatingDifference","ImportanceDifference","AgeDifference", "ForeignersShareDifference", "OccupancyRate","YellowCardDifference", "RedCardDifference", "FoulDifference", "PercentagePointsHome"))]
 
 scale(model_variables)

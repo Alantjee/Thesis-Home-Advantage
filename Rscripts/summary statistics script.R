@@ -6,8 +6,8 @@ des <- c('YellowCardDifference', 'RedCardDifference',
    'RatingDifference',
    'OccupancyRate',
   'GoalDifference',
-   'PercentagePointsHome',
-   'ForeignersShareDifference',
+   'PointsDifference',
+    'ForeignersShareDifference',
   'AverageAttendance')
 
 descriptivevariables = full_dataset_alan[, which(colnames(full_dataset_alan)%in%des)]
@@ -28,6 +28,8 @@ stargazer(descriptivevariables,
 #df_results colnames(X) <- c("good", "better")
 
 #write.csv(full_dataset_alan, "C:/Documents/thesis/datasets/final_dataset.csv", row.names = FALSE, sep = ";")
+
+
 
 
 contingency <- as.table(as.matrix(meanwin))

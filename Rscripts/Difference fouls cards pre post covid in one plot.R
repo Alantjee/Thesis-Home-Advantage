@@ -1,3 +1,6 @@
+covid_data <- full_dataset_alan %>% filter(covid == 1)
+non_covid_data <- full_dataset_alan %>% filter(covid != 1)
+
 yellowspread_covid <-  mean(covid_data$YellowCardDifference)
 non_covid_data <- non_covid_data %>% filter(!is.na(YellowCardDifference))
 yellowspread_noncovid <- mean(non_covid_data$YellowCardDifference)
@@ -28,7 +31,7 @@ se_redspread_noncovid <- sd_redspread_covid/sqrt(nrow(non_covid_data))
 se_Foulspread_covid <- sd_Foulspread_covid/sqrt(nrow(covid_data))
 se_Foulspread_noncovid <- sd_Foulspread_covid/sqrt(nrow(non_covid_data))
 
-Legend <- c("Difference yellow Cards pre Covid", "Difference yellow Cards Covid", "Difference Red Cards pre Covid", "Difference Red Cards Covid", "Difference Fouls pre Covid", "Difference Fouls Covid")
+Legend <- c("Yellow Cards pre Covid", "Yellow Cards Covid", "Red Cards pre Covid", "Red Cards Covid", "Fouls pre Covid", "Fouls Covid")
 refereespread <- c(yellowspread_noncovid ,yellowspread_covid, redspread_noncovid, redspread_covid, Foulspread_noncovid, Foulspread_covid)
 
 se <- c(se_yellowspread_noncovid, se_yellowspread_covid, se_redspread_noncovid, se_redspread_covid, se_Foulspread_noncovid, se_Foulspread_covid)
@@ -37,10 +40,9 @@ df_refereespread <- data.frame(df_refereespread)
 df_refereespread$se <- as.numeric(df_refereespread$se)
 df_refereespread$refereespread <- as.numeric(df_refereespread$refereespread)
 str(df_refereespread)
-df_yellowspread$Legend <- factor(Legend, levels = c("Difference yellow Cards pre Covid", "Difference yellow Cards Covid", "Difference Red Cards pre Covid", "Difference Red Cards Covid", "Difference Fouls pre Covid", "Difference Fouls Covid"))
-levels(df_referee$Legend)
+df_refereespread$Legend <- factor(Legend, levels = c("Yellow Cards pre Covid", "Yellow Cards Covid", "Red Cards pre Covid", "Red Cards Covid", "Fouls pre Covid", "Fouls Covid"))
 df_refereespread
-plot_refereespread <- ggplot(df_refereespread, aes(x = Legend, y = refereespread, 
+plot_refereespread <- ggplot(df_refereespread, aes(reorder(Legend, refereespread), y = refereespread, 
                                                  ymin = refereespread-se, ymax = refereespread+se)) +
   geom_bar(aes(color = Legend), stat = "identity", fill ="white") + 
   geom_errorbar(aes(color = Legend), width = 0.2) + 

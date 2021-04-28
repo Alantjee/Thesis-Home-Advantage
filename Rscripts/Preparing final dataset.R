@@ -1,7 +1,9 @@
+set.seed(1234)
 library(asht)
 library(pander)
 library(compare)
 library(WMWssp)
+library(lmtest)
 library(lavaan)
 library(ggpubr)
 library(stringr)
@@ -14,6 +16,8 @@ library(tidyverse)
 library(qwraps2)
 library(gridExtra)
 library(stargazer)
+library(ggplot2)
+library(reshape2)a
 library(psych)
 library(readr)
 library(sjPlot)
@@ -122,6 +126,7 @@ full_dataset_alan <- full_dataset_alan %>% mutate(var = ifelse(season == 2018 & 
 full_dataset_alan <- full_dataset_alan %>% mutate(CornerDifference = HC - AC)
 full_dataset_alan <- full_dataset_alan %>% mutate(ShotsDifference = HS - AC)
 full_dataset_alan <- full_dataset_alan %>% mutate(ShotsTargetDifference = HST - AST)
+full_dataset_alan <- full_dataset_alan %>% mutate(PercentagePointsDifference = percentage_points_home - percentage_points_away)
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='yel_card_spread')] <- 'YellowCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='red_card_spread')] <- 'RedCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='foul_spread')] <- 'FoulDifference'
@@ -139,5 +144,5 @@ colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='avg_attendance')
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='diff_point')] <- 'PointsDifference'
 full_dataset_alan$AverageAttendance <- as.numeric(full_dataset_alan$AverageAttendance)
 as.numeric(gsub(",","",full_dataset_alan$AverageAttendance,fixed=TRUE))
-
+full_dataset_alan <- full_dataset_alan %>% mutate(AverageAttendance = AverageAttendance/1000)
 

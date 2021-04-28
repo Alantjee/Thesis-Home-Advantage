@@ -8,46 +8,8 @@ model_variables$AverageAttendance <- scale(model_variables$AverageAttendance, ce
 model_variables$AgeDifference <- scale(model_variables$AgeDifference, center = TRUE, scale = TRUE)[,]
 model_variables$OccupancyRate <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
 
-#model_variables$RatingDifference <- scale(model_variables$RatingDifference, center = TRUE, scale = TRUE )[,]
-#model_variables$ImportanceDifference <- scale(model_variables$ImportanceDifference, center = TRUE, scale = TRUE )[,]
 
-
-
-#mahal <- mahalanobis(model_variables, 
-  #                   colMeans(model_variables),
-   #                  cov(model_variables))
-
-#cutoff = qchisq(1-0.001, ncol(model_variables))
-#table(mahal < cutoff)
-#model_variables <- subset(model_variables, mahal< cutoff)
-#nrow(model_variables)
-
-
-
-
-#path <- lm(PercentagePointsHome ~ FoulDifference +covid +AverageAttendance + OccupancyRate  + covid*AverageAttendance +ForeignersShareDifference + AgeDifference + covid*OccupancyRate +  + covid*AgeDifference + covid*ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR , data = model_variables)
-
-#apath <- lm(FoulDifference ~ covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid*AverageAttendance +covid*OccupancyRate + covid*ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR, data = model_variables)
-
-gvmodel <- gvlma()
-gvmodel2 <- gvlma()
-assumptions <- pander()
-assumptions2 <- pander()
-
-#model_diagnostics <- augment(bpath)
-#head(model_diagnostics)
-
-#summary(bpath)
-#par(mfrow = c(2, 2))
-#plot(bpath)
-#plot(bpath, 1)
-#plot(bpath, 2)
-#plot(bpath, 3)
-#plot(bpath, 4)
-#plot(bpath, 5)
-#plot(bpath, 6)
-
-model.ref1 <- ' FoulDifference ~ a*covid + d1 * ImportanceDifference + d2 * RatingDifference + d3 * VAR
+model.ref1 <- ' plm(FoulDifference ~ a*covid + d1 * ImportanceDifference + d2 * RatingDifference + d3 * VAR)
                 GoalDifference ~ b*FoulDifference +c*covid + d2 * ImportanceDifference + RatingDifference + VAR 
                  
                 indirect := -1*a*b
@@ -156,6 +118,20 @@ fit10 <- sem(model.ref10, data = model_variables, se = "bootstrap", bootstrap = 
 summary(fit10, standardized = T, fit.measures = T, rsq = T)
 
 
+model.ref11 <- 'RefereeBias =~ FoulDifference + YellowCardDifference
+                RefereeBias ~~ RefereeBias
+                FoulDifference ~~ FoulDifference
+                YellowCardDifference ~~ YellowCardDifference
+                
+                RefereeBias ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
+                ExpectedGoalsDifference ~ b*RefereeBias +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
+                 
+                indirect := -1*a*b
+                direct := c
+                total := c + (a*b)'
+
+fit11 <- sem(model.ref11, data = model_variables, se = "bootstrap", bootstrap = 100)
+summary(fit11, standardized = T, fit.measures = T, rsq = T)
 
 semPaths(fit2, what='std', nCharNodes=6, sizeMan=10,
          edge.label.cex=1.25, curvePivot = TRUE, fade=FALSE)

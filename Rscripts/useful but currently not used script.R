@@ -309,3 +309,23 @@ res$p.value
 res$estimate
 table(covid_data$away_win, covid_data$home_win)
 table(non_covid_data$away_win, non_covid_data$home_win)
+
+
+plot = time_series_yellowcard + 
+  scale_x_date(breaks = as.Date(c("2020-03-15")))
+print(plot)
+str(full_dataset_alan$quarter)
+full_dataset_alan$quarter <- as.Date(full_dataset_alan$quarter)
+full_dataset_alan <- full_dataset_alan %>% mutate( month = floor_date(full_dataset_alan$Date, "month"))
+full_dataset_alan$Month_Year <- format(as.Date(full_dataset_alan$Date), "%Y-%m")
+full_dataset_alan$quarter <- quarter(full_dataset_alan$Date, with_year = TRUE)
+full_dataset_alan$quarter <- as.Date(full_dataset_alan$quarter, "%q")
+
+library(zoo)
+full_dataset_alan$quarter <- as.yearqtr(full_dataset_alan$Date, format = "%Y %q")
+
+
+full_dataset_alan$aggregate <- aggregate(full_dataset_alan["HS"], by=full_dataset_alan["Month_Year"], mean)
+
+plot(ggplot(data = aggregate) + 
+       geom_smooth(mapping = aes(x = Month_Year, y = HS)))
