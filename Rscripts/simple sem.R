@@ -107,8 +107,8 @@ fit9 <- sem(model.ref9, data = model_variables, se = "bootstrap", bootstrap = 10
 summary(fit9, standardized = T, fit.measures = T, rsq = T)
 
 
-model.ref10 <- 'RedCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
-                PercentagePointsHome ~ b*RedCardDifference +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
+model.ref10 <- 'RedCardDifference ~ a*covid  + highOccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:highOccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
+                PercentagePointsHome ~ b*RedCardDifference +c*covid +AverageAttendance + highOccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:highOccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
                  
                 indirect := -1*a*b
                 direct := c

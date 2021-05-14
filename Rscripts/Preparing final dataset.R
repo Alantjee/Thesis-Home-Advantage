@@ -1,5 +1,6 @@
 set.seed(1234)
 library(asht)
+library(rockchalk)
 library(pander)
 library(compare)
 library(WMWssp)
@@ -30,6 +31,7 @@ require(gvlma)
 library(haven)
 library(trafo)
 library(plm)
+library(semTools)
 setwd("C:/Documents/thesis/datasets")
 SPI <- read.csv("./Spi.csv")
 SPI$date <- as.Date(SPI$date)
@@ -145,4 +147,5 @@ colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='diff_point')] <-
 full_dataset_alan$AverageAttendance <- as.numeric(full_dataset_alan$AverageAttendance)
 as.numeric(gsub(",","",full_dataset_alan$AverageAttendance,fixed=TRUE))
 full_dataset_alan <- full_dataset_alan %>% mutate(AverageAttendance = AverageAttendance/1000)
+
 
