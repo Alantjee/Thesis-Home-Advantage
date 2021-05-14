@@ -68,19 +68,7 @@ x24
 x25 <- wilcox.test(covid_data$GoalDifference, non_covid_data$GoalDifference)
 x25
 
-a<- mean(covid_data$YellowCardDifference)
-b<- mean(non_covid_data$YellowCardDifference)
-c<- mean(non_covid_data$RedCardDifference)
-d<- mean(covid_data$RedCardDifference)
-e<- mean(non_covid_data$FoulDifference)
-f<- mean(covid_data$FoulDifference)
-g <- mean(non_covid_data$percentage_points_away)
-h <- mean(covid_data$percentage_points_away)
-i <- mean(non_covid_data$GoalDifference)
-j <- mean(covid_data$GoalDifference)
 
-k <- mean(non_covid_data$ExpectedGoalsDifference)
-L <- mean(covid_data$ExpectedGoalsDifference)
 M <- wmwTest(covid_data$YellowCardDifference, non_covid_data$YellowCardDifference, alternative = c("two.sided", "less", "greater"))
 N <- wmwTest(covid_data$RedCardDifference, non_covid_data$RedCardDifference, alternative = c("two.sided", "less", "greater"))
 O <- wmwTest(covid_data$ExpectedGoalsDifference, non_covid_data$ExpectedGoalsDifference, alternative = c("two.sided", "less", "greater"))
@@ -102,10 +90,10 @@ D <- wmwTest(covid_data$AS, non_covid_data$AS, alternative = c("two.sided", "les
 E <- wmwTest(covid_data$HST, non_covid_data$HST, alternative = c("two.sided", "less", "greater"))
 G <- wmwTest(covid_data$AST, non_covid_data$AST, alternative = c("two.sided", "less", "greater"))
 J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points_away, alternative = c("two.sided", "less", "greater"))
-
+XD <- wmwTest(covid_data$xg2, covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 H <- wmwTest(covid_data$xg1, non_covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 I <- wmwTest(covid_data$xg2, non_covid_data$xg2, alternative = c("two.sided", "less", "greater"))
-l <- t.test(covid_data$xg1, non_covid_data$HG, paired = FALSE)
+l <- t.test(non_covid_data$xg1, non_covid_data$HG, paired = FALSE)
 x<- pander(I)
 prop.test(x = c(1014, 1210), n = c(1539, 2334),
           alternative = "two.sided")
@@ -129,37 +117,6 @@ mean(covid_data$xg2)
 ks.test(full_dataset_alan$YellowCardDifference, y='pnorm',alternative='two.sided')
 
 
-normality <- function(x){
-  ad.test(x)
-}
-sapply(model_variables, normality)
 
-
-root<- function(x){
-  sqrt(x)
-}
-sapply(model_variables, root)
-
-summary(model_variables)
 
 #data check
-
-model_variables <- full_dataset_alan[ , which(names(full_dataset_alan) %in%  c("ImportanceDifference","GoalDifference","covid","VAR","RatingDifference","ImportanceDifference","ExpectedGoalsDifference","AgeDifference", "ForeignersShareDifference", "OccupancyRate","YellowCardDifference", "RedCardDifference", "FoulDifference", "PercentagePointsHome"))]
-str(model_variables)
-
-
-set.seed(123)
-model_variables$spl=sample.split(model_variables$covid,SplitRatio=0.7)
-train=subset(model_variables, full_dataset_alan$spl==TRUE)
-test=subset(model_variables, full_dataset_alan$spl==FALSE)
-summary(train)
-train <- train %>% filter(!is.na(ImportanceDifference))
-test <- test %>% filter(!is.na(ImportanceDifference))
-ggplot(train, aes(AgeDifference, GoalDifference ) )+
-  geom_point() +
-  stat_smooth()
-
-training.samples <- model_variables %>%
-  createDataPartition(p = 0.8, list = FALSE)
-train.data  <- model_variables[training.samples, ]
-test.data <- model_variables[-training.samples, ]

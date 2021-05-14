@@ -14,12 +14,12 @@ descriptivevariables = full_dataset_alan[, which(colnames(full_dataset_alan)%in%
 #descriptivevariables <- cbind(full_dataset_alan [, 4:5], full_dataset_alan[, 24:25], full_dataset_alan[, 30:34], full_dataset_alan[, 37:40], full_dataset_alan [, 45:48], full_dataset_alan[, 52:56], full_dataset_alan[, 61:62], full_dataset_alan[, 67:68] )
 #descriptivevariables <- descriptivevariables[ , -which(names(descriptivevariables) %in% c("avg_age_away", "rating_diff", "xg_diff"))]
 
-stargazer(descriptivevariables,
+stargazer(full_dataset_alan,
             type = "html",
             median = TRUE,
             title = "Descriptive Statistics", 
             #order=c("PercentagePointsHome", "ExpectedGoalsDifference", "GoalDifference", "ForeignersShareDifference", "AgeDifference", "OccupancyRate", "AverageAttendance", "YellowCardDifference", "FoulDifference", "RedCardDifference", "RatingDifference", "ImportanceDifference"),
-            out="stats_descriptives.html")
+            out="full_descriptives.html")
 
 #SPI <- SPI[2:23]
 #SPI <- subset( SPI, select = -c(league_id, ))

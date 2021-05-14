@@ -109,7 +109,7 @@ full_dataset_alan <- full_dataset_alan %>% mutate(draw = ifelse(FTHG == FTAG, 1,
 full_dataset_alan <- full_dataset_alan %>% mutate(home_points = ifelse(FTHG > FTAG, 3, ifelse(FTHG < FTAG, 0, 1)))
 full_dataset_alan <- full_dataset_alan %>% mutate(away_points = ifelse(FTHG < FTAG, 3, ifelse(FTHG > FTAG, 0, 1)))
 full_dataset_alan <- full_dataset_alan %>% mutate(yel_card_ratio_home = HY/HF)
-full_dataset_alan <- full_dataset_alan %>% mutate(red_card_ratio_home = HY/HF)
+full_dataset_alan <- full_dataset_alan %>% mutate(red_card_ratio_home = HR/HF)
 full_dataset_alan <- full_dataset_alan %>% mutate(yel_card_ratio_away = AY/AF)
 full_dataset_alan <- full_dataset_alan %>% mutate(red_card_ratio_away = AR/AF)
 full_dataset_alan <- full_dataset_alan %>% mutate(shots_ratio_home = HST/HS)
