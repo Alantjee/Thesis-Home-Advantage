@@ -15,8 +15,6 @@ model_variables %>%
 
 
 
-shapiro.test(covid_data$ExpectedGoalsDifference)
-
 x1 <- wilcox.test(covid_data$FTHG, non_covid_data$FTHG)
 x1
 x2 <- wilcox.test(covid_data$FTAG, non_covid_data$FTAG)
@@ -93,19 +91,18 @@ J <- wmwTest(covid_data$percentage_points_away, non_covid_data$percentage_points
 XD <- wmwTest(covid_data$xg2, covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 H <- wmwTest(covid_data$xg1, non_covid_data$xg1, alternative = c("two.sided", "less", "greater"))
 I <- wmwTest(covid_data$xg2, non_covid_data$xg2, alternative = c("two.sided", "less", "greater"))
+
+PO <- wmwTest(covid_data$PointsDifference, non_covid_data$PointsDifference, alternative = c("two.sided", "less", "greater"))
+PP <- wmwTest(covid_data$ExpectedGoalsDifference, non_covid_data$ExpectedGoalsDifference, alternative = c("two.sided", "less", "greater"))
+
 l <- t.test(non_covid_data$xg1, non_covid_data$HG, paired = FALSE)
-x<- pander(I)
+x<- pander(PP)
 prop.test(x = c(1014, 1210), n = c(1539, 2334),
           alternative = "two.sided")
 mean(non_covid_data$YellowCardDifference)
 
-ggqqplot(covid_data$ExpectedGoalsDifference)
-hist(covid_data$ExpectedGoalsDifference)
-shapiro.test(covid_data$HST)
-shapiro.test(non_covid_data$HST)
-shapiro.test(covid_data$AST)
-shapiro.test(covid_data$FoulDifference)
-shapiro.test(covid_data$ExpectedGoalsDifference)
+
+
 non_covid_data <- non_covid_data %>% filter(!is.na(xg1))
 non_covid_data <- non_covid_data %>% filter(!is.na(xg2))
 covid_data <- covid_data %>% filter(!is.na(xg1))

@@ -1,5 +1,6 @@
 set.seed(1234)
 library(asht)
+library(car)
 library(rockchalk)
 library(pander)
 library(compare)

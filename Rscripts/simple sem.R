@@ -7,18 +7,8 @@ model_variables$ForeignersShareDifference <- scale(model_variables$ForeignersSha
 model_variables$AverageAttendance <- scale(model_variables$AverageAttendance, center = TRUE, scale = TRUE)[,]
 model_variables$AgeDifference <- scale(model_variables$AgeDifference, center = TRUE, scale = TRUE)[,]
 model_variables$OccupancyRate <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
+model_variables$league <- as.numeric(factor(model_variables$league))
 
-
-model.ref1 <- ' plm(FoulDifference ~ a*covid + d1 * ImportanceDifference + d2 * RatingDifference + d3 * VAR)
-                GoalDifference ~ b*FoulDifference +c*covid + d2 * ImportanceDifference + RatingDifference + VAR 
-                 
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
-
-
-fit1 <- sem(model.ref1, data = model_variables, se = "bootstrap", bootstrap = 100)
-summary(fit1, standardized = T, fit.measures = T, rsq = T)
 
 
 model.ref2 <- ' FoulDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
@@ -43,15 +33,6 @@ model.ref3 <- ' FoulDifference ~ a*covid  + OccupancyRate + AverageAttendance +F
 fit3 <- sem(model.ref3, data = model_variables, se = "bootstrap", bootstrap = 100)
 summary(fit3, standardized = T,fit.measures = T, rsq = T )
 
-model.ref4 <- ' FoulDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
-                PercentagePointsHome ~ b*FoulDifference +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
-                 
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
-
-fit4 <- sem(model.ref4, data = model_variables, se = "bootstrap", bootstrap = 100)
-summary(fit4, standardized = T, fit.measures = T, rsq = T)
 
 model.ref5 <- ' YellowCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
                 GoalDifference ~ b*YellowCardDifference +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
@@ -63,15 +44,6 @@ model.ref5 <- ' YellowCardDifference ~ a*covid  + OccupancyRate + AverageAttenda
 fit5 <- sem(model.ref5, data = model_variables, se = "bootstrap", bootstrap = 100)
 summary(fit5, standardized = T, fit.measures = T, rsq = T)
 
-model.ref6 <- ' YellowCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
-                PercentagePointsHome ~ b*YellowCardDifference +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
-                 
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
-
-fit6 <- sem(model.ref6, data = model_variables, se = "bootstrap", bootstrap = 100)
-summary(fit6, standardized = T, fit.measures = T, rsq = T)
 
 
 model.ref7 <- ' YellowCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
@@ -96,42 +68,31 @@ fit8 <- sem(model.ref8, data = model_variables, se = "bootstrap", bootstrap = 10
 summary(fit8, standardized = T, fit.measures = T, rsq = T)
 
 
-model.ref9 <- ' RedCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
+model.ref9 <- ' RedCardDifference ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR + ShotsDifference
                 PointsDifference ~ b*RedCardDifference +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
                  
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
+                Direct := cp
+                indirect := a*b
+                moderated mediation effect occupancy:= (a3 * b) 
+                moderated effect occupancy := b3
+                total effect occupancy := (a3 * b)  + b3
+                moderated mediation effect attendance:= (a6 * b) 
+                moderated effect attendance :=  b6
+                total effect attendance := (a6 * b) + b6
+                moderated mediation effect foreigners share := (a7 * b) 
+                moderated effect foreigners share := b7
+                total effect foreigners share := (a7 * b) + b7 
+                moderated effect Age := b9
+                total := cp + (a*b)  +  (a7 * b) + b7 + (a6 * b) + b6 + (a3 * b)  + b3 + b9
+                confounder Rating  := d1
+                confounder Importance := d2
+                confounder Shots := d3
+                counfounder Var := d4
+                confounder league := d6'
 
 fit9 <- sem(model.ref9, data = model_variables, se = "bootstrap", bootstrap = 100)
 summary(fit9, standardized = T, fit.measures = T, rsq = T)
 
-
-model.ref10 <- 'RedCardDifference ~ a*covid  + highOccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:highOccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
-                PercentagePointsHome ~ b*RedCardDifference +c*covid +AverageAttendance + highOccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:highOccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
-                 
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
-
-fit10 <- sem(model.ref10, data = model_variables, se = "bootstrap", bootstrap = 100)
-summary(fit10, standardized = T, fit.measures = T, rsq = T)
-
-
-model.ref11 <- 'RefereeBias =~ FoulDifference + YellowCardDifference
-                RefereeBias ~~ RefereeBias
-                FoulDifference ~~ FoulDifference
-                YellowCardDifference ~~ YellowCardDifference
-                
-                RefereeBias ~ a*covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid:AverageAttendance +covid:OccupancyRate + covid:ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR
-                ExpectedGoalsDifference ~ b*RefereeBias +c*covid +AverageAttendance + OccupancyRate  + covid:AverageAttendance +ForeignersShareDifference + AgeDifference + covid:OccupancyRate +  covid:AgeDifference + covid:ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR 
-                 
-                indirect := -1*a*b
-                direct := c
-                total := c + (a*b)'
-
-fit11 <- sem(model.ref11, data = model_variables, se = "bootstrap", bootstrap = 100)
-summary(fit11, standardized = T, fit.measures = T, rsq = T)
 
 semPaths(fit2, what='std', nCharNodes=6, sizeMan=10,
          edge.label.cex=1.25, curvePivot = TRUE, fade=FALSE)
