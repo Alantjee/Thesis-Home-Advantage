@@ -43,6 +43,13 @@ modelmain <- 'Refereebias =~   FoulDifference + YellowCardDifference
 fitmodelmain <- sem(modelmain, data = model_variables, se = "bootstrap", bootstrap = 5000)
 summary(fitmodelmain, fit.measures = T,ci = T,  standardized = T, rsquare = T)
 
+
+Refereebias <- select(model_variables, FoulDifference, YellowCardDifference, RedCardDifference)
+alpha(Refereebias)
+
+Refereebias2 <- select(model_variables, FoulDifference, YellowCardDifference)
+alpha(Refereebias2)
+
 model2 <- 'Refereebias =~   FoulDifference + YellowCardDifference 
            
            Refereebias ~~ Refereebias

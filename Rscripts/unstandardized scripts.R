@@ -41,9 +41,7 @@ model1 <- 'Refereebias =~   FoulDifference + YellowCardDifference + RedCardDiffe
            confounder league := d6'
 fitmodel1 <- sem(model1 ,data = model_variables, se = "bootstrap", bootstrap = 100)
 summary(fitmodel1, fit.measures = T,ci = T, standardized = T, rsquare = T)
-library(psych)
-Refereebias <- select(model_variables, FoulDifference, YellowCardDifference)
-alpha(Refereebias)
+
 model2 <- 'Refereebias =~   FoulDifference + YellowCardDifference 
            
            Refereebias ~~ Refereebias
