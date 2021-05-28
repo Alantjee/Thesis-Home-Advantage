@@ -14,33 +14,25 @@
 #model_variables <- subset(model_variables, mahal< cutoff)
 #nrow(model_variables)
 
+#model_diagnostics <- augment(bpath)
+#head(model_diagnostics)
 
 
 
-path <- lm(GoalDifference ~ FoulDifference +covid +AverageAttendance + OccupancyRate  + covid*AverageAttendance +ForeignersShareDifference + AgeDifference + covid*OccupancyRate +  + covid*AgeDifference + covid*ForeignersShareDifference + ImportanceDifference + RatingDifference + VAR , data = model_variables)
 
-apath <- lm(FoulDifference ~ covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid*AverageAttendance +covid*OccupancyRate + covid*ForeignersShareDifference + RatingDifference + ImportanceDifference + VAR, data = model_variables)
+path <- lm(GoalDifference~ YellowCardDifference +covid +AverageAttendance + OccupancyRate  + covid*AverageAttendance +ForeignersShareDifference + AgeDifference + covid*OccupancyRate +  + covid*AgeDifference + covid*ForeignersShareDifference + ImportanceDifference +  RatingDifference + VAR + as.factor(league) , data = model_variables)
 
-bptest(apath)
-gvmodel <- gvlma(path)
-#gvmodel2 <- gvlma()
-assumptions <- pander(gvmodel)
-#assumptions2 <- pander()
+apath <- lm(YellowCardDifference ~  covid  + OccupancyRate + AverageAttendance +ForeignersShareDifference + covid*AverageAttendance +covid*OccupancyRate + covid*ForeignersShareDifference + RatingDifference + ImportanceDifference + ShotsDifference + VAR + as.factor(league), data = model_variables)
 
-leveneTest(apath)
+
 ncvTest(path)
 ncvTest(apath)
 vif(path)
 vif(apath)
-#model_diagnostics <- augment(bpath)
-#head(model_diagnostics)
 
-summary(apath)
+
 par(mfrow = c(2, 2))
-plot(apath)
-plot(apath, 1)
-plot(apath, 2)
-plot(apath, 3)
-plot(apath, 4)
-plot(apath, 5)
-plot(apath, 6)
+plot(path ,1)
+plot(path, 3)
+
+plot(apath,3)
