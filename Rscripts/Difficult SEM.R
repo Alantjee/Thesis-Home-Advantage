@@ -6,13 +6,13 @@ model_variables$ForeignersShareDifference <- scale(model_variables$ForeignersSha
 model_variables$AverageAttendance <- scale(model_variables$AverageAttendance, center = TRUE, scale = TRUE)[,]
 model_variables$AgeDifference <- scale(model_variables$AgeDifference, center = TRUE, scale = TRUE)[,]
 model_variables$OccupancyRate <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
-#model_variables = cbind(model_variables, dummy.code(model_variables$league))
+model_variables$league <- as.numeric(as.factor(model_variables$league))
+str(model_variables)
+#model_variables$RatingDifference <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
+#model_variables$ImportanceDifference <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
+#model_variables$ShotsDifference <- scale(model_variables$OccupancyRate, center = TRUE, scale = TRUE)[,]
+#modelall<-cbind(model_variables, model_variables2)
 
-model_variables$league <- as.numeric(factor(model_variables$league))
-
-
-
-#laatste model, deze werkt het beste
 modelmain <- 'Refereebias =~   FoulDifference + YellowCardDifference 
            
            Refereebias ~~ Refereebias
@@ -20,8 +20,8 @@ modelmain <- 'Refereebias =~   FoulDifference + YellowCardDifference
            YellowCardDifference ~~ YellowCardDifference
            
            
-           Refereebias ~ a*covid + a2* OccupancyRate + a3*OccupancyRate:covid + a4 * AverageAttendance + a5 * ForeignersShareDifference + a6 * AverageAttendance:covid + a7 * ForeignersShareDifference:covid +  d1 * RatingDifference + d2 * ImportanceDifference + d3 * ShotsDifference +  d4* VAR + d5 * as.factor(league) 
-           GoalDifference ~ cp * covid + b* Refereebias + b2 * OccupancyRate + b3* OccupancyRate:covid + b4 * AverageAttendance + b5 * ForeignersShareDifference + b6 * AverageAttendance:covid + b7 * ForeignersShareDifference:covid + b8 * AgeDifference + b9 * AgeDifference:covid + e1 * RatingDifference + e2 * ImportanceDifference  + e4* VAR + e5 * as.factor(league)  
+           Refereebias ~ a*covid + a2* OccupancyRate + a3*OccupancyRate:covid + a4 * AverageAttendance + a5 * ForeignersShareDifference + a6 * AverageAttendance:covid + a7 * ForeignersShareDifference:covid +  d1 * RatingDifference + d2 * ImportanceDifference + d3 * ShotsDifference 
+           GoalDifference ~ cp * covid + b* Refereebias + b2 * OccupancyRate + b3* OccupancyRate:covid + b4 * AverageAttendance + b5 * ForeignersShareDifference + b6 * AverageAttendance:covid + b7 * ForeignersShareDifference:covid + b8 * AgeDifference + b9 * AgeDifference:covid + e1 * RatingDifference + e2 * ImportanceDifference  
            
            Direct := cp
            indirect := a*b
@@ -38,10 +38,35 @@ modelmain <- 'Refereebias =~   FoulDifference + YellowCardDifference
            total := cp + (a*b) 
            confounder Rating  := d1
            confounder Importance := d2
-           confounder Shots := d3
-           counfounder Var := d4'
-fitmodelmain <- sem(modelmain, data = model_variables, se = "bootstrap", bootstrap = 5000)
+           confounder Shots := d3'
+fitmodelmain <- sem(modelmain, data = model_variables, se="bootstrap", bootstrap = 5)
 summary(fitmodelmain, fit.measures = T,ci = T,  standardized = T, rsquare = T)
+
+
+model <- ' YellowCardDifference ~ a*covid + a2* OccupancyRate + a3*OccupancyRate:covid +  a5 * ForeignersShareDifference + a6 * AverageAttendance:covid + a7 * ForeignersShareDifference:covid +  d1 * RatingDifference + d2 * ImportanceDifference + d3 * ShotsDifference + d4* VAR + d6 * as.factor(league)
+           PointsDifference ~ cp * covid + b* YellowCardDifference + b2 * OccupancyRate + b3* OccupancyRate:covid + b4 * AverageAttendance + b5 * ForeignersShareDifference + b7 * ForeignersShareDifference:covid + b8 * AgeDifference + b9 * AgeDifference:covid + e1 * RatingDifference + e2 * ImportanceDifference  + e3 * VAR + e4 * as.factor(league)
+           
+           Direct := cp
+           indirect := a*b
+           moderated mediation effect occupancy:= (a3 * b) 
+           moderated effect occupancy := b3
+           total effect occupancy := (a3 * b)  + b3
+           moderated mediation effect attendance:= (a6 * b) 
+           moderated effect attendance :=  b6
+           total effect attendance := (a6 * b) + b6
+           moderated mediation effect foreigners share := (a7 * b) 
+           moderated effect foreigners share := b7
+           total effect foreigners share := (a7 * b) + b7 
+           moderated effect Age := b9
+           total := cp + (a*b) 
+           confounder Rating  := d1
+           confounder Importance := d2
+           confounder Shots := d3'
+
+
+
+fitmodel <- sem(model, data = model_variables, se="bootstrap", bootstrap = 5)
+summary(fitmodel, fit.measures = T,ci = T,  standardized = T, rsquare = T)
 
 
 Refereebias <- select(model_variables, FoulDifference, YellowCardDifference, RedCardDifference)
@@ -78,7 +103,7 @@ model2 <- 'Refereebias =~   FoulDifference + YellowCardDifference
            confounder Shots := d3
            counfounder Var := d4
            confounder league := d6'
-fitmodel2 <- sem(model2 ,data = model_variables, se = "bootstrap", bootstrap = 5000)
+fitmodel2 <- sem(model2 ,data = model_variables, se = "bootstrap", bootstrap = 100)
 summary(fitmodel2, fit.measures = T, ci = T,standardized = T, rsquare = T)
 
 model3 <- 'YellowCardDifference ~ a*covid + a2* OccupancyRate + a3*OccupancyRate:covid + a4 * AverageAttendance + a5 * ForeignersShareDifference + a6 * AverageAttendance:covid + a7 * ForeignersShareDifference:covid +  d1 * RatingDifference + d2 * ImportanceDifference + d3 * ShotsDifference +  d4* VAR + d6* as.factor(league)
@@ -130,6 +155,32 @@ fitmodel4 <- sem(model4 ,data = model_variables, se = "bootstrap", bootstrap = 5
 summary(fitmodel4, fit.measures = T,ci = T,  standardized = T, rsquare = T)
 
 
+
+
+
+model4 <- 'YellowCardDifference ~ a*covid + a2* OccupancyRate + a3*OccupancyRate:covid + a4 * AverageAttendance + a5 * ForeignersShareDifference + a6 * AverageAttendance:covid + a7 * ForeignersShareDifference:covid +  d1 * RatingDifference + d2 * ImportanceDifference + d3 * ShotsDifference +  d4* VAR + d6* as.factor(league)
+           GoalDifference ~ cp * covid + b* YellowCardDifference + b2 * OccupancyRate + b3* OccupancyRate:covid + b4 * AverageAttendance + b5 * ForeignersShareDifference + b6 * AverageAttendance:covid + b7 * ForeignersShareDifference:covid + b8 * AgeDifference + b9 * AgeDifference:covid + e1 * RatingDifference + e2 * ImportanceDifference  + e4* VAR + e6* as.factor(league)
+           
+           Direct := cp
+           indirect := a*b
+           moderated mediation effect occupancy:= (a3 * b) 
+           moderated effect occupancy := b3
+           total effect occupancy := (a3 * b)  + b3
+           moderated mediation effect attendance:= (a6 * b) 
+           moderated effect attendance :=  b6
+           total effect attendance := (a6 * b) + b6
+           moderated mediation effect foreigners share := (a7 * b) 
+           moderated effect foreigners share := b7
+           total effect foreigners share := (a7 * b) + b7 
+           moderated effect Age := b9
+           total := cp + (a*b) 
+           confounder Rating  := d1
+           confounder Importance := d2
+           confounder Shots := d3
+           counfounder Var := d4
+           confounder league := d6'
+fitmodel4 <- sem(model4 ,data = model_variables, se = "bootstrap", bootstrap =100)
+summary(fitmodel4, fit.measures = T,ci = T,  standardized = T, rsquare = T)
 model5 <- 'Refereebias =~   FoulDifference + YellowCardDifference 
            
            Refereebias ~~ Refereebias
