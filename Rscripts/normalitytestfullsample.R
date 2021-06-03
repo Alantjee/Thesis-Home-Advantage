@@ -1,52 +1,29 @@
-z1 <- ad.test(full_dataset_alan$FTHG)
-z1
-z2 <- ad.test(full_dataset_alan$FTAG)
-z2
-z3 <-ad.test(full_dataset_alan$HY) 
-z3
-z4 <-ad.test(full_dataset_alan$AY)
-z4
-z5 <-ad.test(full_dataset_alan$HR)
-z5
-z6 <-ad.test(full_dataset_alan$AR)
-z6
-z7 <-ad.test(full_dataset_alan$HF)
-z7
-z8 <-ad.test(full_dataset_alan$AF)
-z8
-z9 <-ad.test(full_dataset_alan$away_win)
-z9
-z10 <-ad.test(full_dataset_alan$home_win)
-z10
-z11 <-ad.test(full_dataset_alan$HS)
-z11
-z12 <-ad.test(full_dataset_alan$AS)
-z12
-z13 <-ad.test( full_dataset_alan$xg1)
-z13
-z14 <-ad.test( full_dataset_alan$xg2)
-z14
-z15 <- ad.test( full_dataset_alan$home_points)
-z15
-z16 <- ad.test(full_dataset_alan$away_points)
-z16
-z17 <- ad.test( full_dataset_alan$PercentagePointsHome)
-z17
-z18 <- ad.test( full_dataset_alan$percentage_points_away)
-z18
-z19 <- ad.test( full_dataset_alan$HST)
-z19
-z20 <- ad.test( full_dataset_alan$AST)
-z20
-z21 <- ad.test( full_dataset_alan$PointsDifference)
-z21
-z22 <- ad.test( full_dataset_alan$YellowCardDifference)
-z22
-z23 <- ad.test( full_dataset_alan$RedCardDifference)
-z23
-z24 <- ad.test( full_dataset_alan$FoulDifference)
-z24
-z25 <- ad.test(full_dataset_alan$GoalDifference)
-result <- pander(z26)
-z26 <- ad.test(full_dataset_alan$ExpectedGoalsDifference)
-adlkfj <- mean(non_covid_data$PointsDifference)
+#dit zijn anderson darling test voor alel variabelen voor univariate normality. 
+normalityHomeGoals <- ad.test(full_dataset_alan$FTHG)
+normalityAwayGoals <- ad.test(full_dataset_alan$FTAG)
+normalityHomeYellow <-ad.test(full_dataset_alan$HY) 
+normalityAwayYellow <-ad.test(full_dataset_alan$AY)
+normalityHomeRed <-ad.test(full_dataset_alan$HR)
+normalityAwayRed <-ad.test(full_dataset_alan$AR)
+normalityHomeFouls <-ad.test(full_dataset_alan$HF)
+normalityAwayFouls <-ad.test(full_dataset_alan$AF)
+normalityAwayWin <-ad.test(full_dataset_alan$away_win)
+normalityHomeWin<-ad.test(full_dataset_alan$home_win)
+normalityHomeShots <-ad.test(full_dataset_alan$HS)
+normalityAwayShots <-ad.test(full_dataset_alan$AS)
+normalityExpectedGoalsHome <-ad.test( full_dataset_alan$xg1)
+normalityExpectedGoalsAway <-ad.test( full_dataset_alan$xg2)
+normalityHomePoints <- ad.test( full_dataset_alan$home_points)
+normalityAwayPoints <- ad.test(full_dataset_alan$away_points)
+normalityPercentagePointsHome <- ad.test( full_dataset_alan$PercentagePointsHome)
+normalityPercentagePointsAway <- ad.test( full_dataset_alan$percentage_points_away)
+normalityHomeShotsTarget <- ad.test( full_dataset_alan$HST)
+normalityAwayShotsTarget <- ad.test( full_dataset_alan$AST)
+normalityPointsDifference <- ad.test( full_dataset_alan$PointsDifference)
+normalityYellowCardDifference <- ad.test( full_dataset_alan$YellowCardDifference)
+normalityRedCardDifference <- ad.test( full_dataset_alan$RedCardDifference)
+normalityFoulDifference <- ad.test( full_dataset_alan$FoulDifference)
+normalityGoalDifference <- ad.test(full_dataset_alan$GoalDifference)
+normalityExpectedGoalsDifference <- ad.test(full_dataset_alan$ExpectedGoalsDifference)
+#output, moet helaas per test dus beetje lang werk
+output <- pander(normalityHomeGoals)

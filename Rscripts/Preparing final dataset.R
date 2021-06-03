@@ -1,7 +1,9 @@
+#set seed for reproduceerbaarheid
 set.seed(1234)
+
+#alle library's diei nodig zouden kunnen zijn. 
 library(asht)
 library(car)
-library(fastDummies)
 library(rockchalk)
 library(pander)
 library(compare)
@@ -36,14 +38,23 @@ library(haven)
 library(trafo)
 library(plm)
 library(semTools)
+
+#working directory
 setwd("C:/Documents/thesis/datasets")
+
+#SPI dataset
 SPI <- read.csv("./Spi.csv")
+
+#in datum format en filteren per seizoen en league 
 SPI$date <- as.Date(SPI$date)
 SPI <- SPI %>% filter(date > "2018-07-01" & date < "2021-03-25")
 SPI <- SPI %>% filter(league %in% c("Belgian Jupiler League", "Dutch Eredivisie", "French Ligue 1", "Turkish Turkcell Super Lig", "Barclays Premier League", 
                                     "Portuguese Liga", "Spanish Primera Division", "German Bundesliga", "Italy Serie A"))
+#columnnamen veranderen 
 colnames(SPI)[which(names(SPI) == "team1")] <- "HomeTeam"
 colnames(SPI)[which(names(SPI) == "team2")] <- "AwayTeam"
+
+#Na's verwijderen en teamnamen die niet precies overeenkwamen met andere datasets veranderen
 SPI <- SPI[!is.na(SPI$score1),]
 SPI <- SPI %>% 
   mutate(HomeTeam = str_replace_all(HomeTeam, "Sporting CP", "Sp Lisbon")) %>%  
@@ -54,23 +65,37 @@ SPI <- SPI %>%
   mutate(HomeTeam = str_replace_all(HomeTeam, "NAC", "NAC Breda" )) %>%
   mutate(HomeTeam = str_replace_all(HomeTeam, "Sparta", "Sparta Rotterdam")) %>%
   mutate(HomeTeam = str_replace_all(HomeTeam, "Girona FC", "Girona"))
+
+#matchdata van football.co.uk per seizoen(alle landen bij elkaar)
 results18_19 <- read.csv("./2018/Results2018-19.csv")
 results19_20 <- read.csv("./2019/Results2019-20.csv")
 results20_21 <- read.csv("./2020/Results2020-21.csv")
+
+#transfermarkt data voor mijn moderators per seizoen(alle landen bij elkaar)
 moderator18_19 <- read.csv("./2018/transfermarkt3good.csv")
 moderator19_20 <- read.csv("./2019/transfermarkt2good.csv")
 moderator20_21 <- read.csv("./2020/transfermarktgood.csv")
+
+#season column verwijderen omdat die ook al in SPI dataset zit
 moderator18_19 <-  moderator18_19[ , -which(names(moderator18_19) %in% c("season"))]
 moderator19_20 <-  moderator19_20[ , -which(names(moderator19_20) %in% c("season"))]
 moderator20_21 <-  moderator20_21[ , -which(names(moderator20_21) %in% c("season"))]
+
+#column names veranderen in logischere namen
 colnames(moderator18_19) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
 colnames(moderator19_20) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
 colnames(moderator20_21) <- c( "club", "avg_age_home", "players_used_home", "foreigners_home", "stadium_size", "avg_attendance", "occupancy", "covid", "covid_occupancy")
+
+#overbodige variabele verwijderen
 results19_20 <-  results19_20[ , -which(names(results19_20) %in% c("Time"))]
 results20_21 <- results20_21[ , -which(names(results20_21) %in% c("Time"))]
+
+#statistieken zoals half time statistics e.d. eruit halen
 results18_19 <- results18_19[1:22]
 results19_20 <- results19_20[1:22]
 results20_21 <- results20_21[1:22]
+
+#kolomnaam veranderen voor merge
 results18_19$club <- results18_19$HomeTeam 
 results19_20$club <- results19_20$HomeTeam 
 results20_21$club <- results20_21$HomeTeam 
@@ -80,6 +105,8 @@ results20_21$club2 <- results20_21$AwayTeam
 moderator18_19$club2 <- moderator18_19$club
 moderator19_20$club2 <- moderator19_20$club
 moderator20_21$club2 <- moderator20_21$club
+
+#transfermarktdata en matchdata bij elkaar
 merge18_19 <- left_join(results18_19, moderator18_19, by = "club")
 merge19_20 <- left_join(results19_20, moderator19_20, by = "club")
 merge20_21 <- left_join(results20_21, moderator20_21, by = "club")
@@ -89,11 +116,19 @@ merge20_21$club2 <- merge20_21$AwayTeam
 merge18_19 <- left_join(merge18_19, moderator18_19, by = "club2")
 merge19_20 <- left_join(merge19_20, moderator19_20, by = "club2")
 merge20_21 <- left_join(merge20_21, moderator20_21, by = "club2")
+
+#alle 3 de jaren bij elkaar voor match data en moderatordata
 df_results <- rbind(merge18_19, merge19_20, merge20_21)
+
+# voor de zekerheid nog een keer als datum zetten(ging wat mis soms eerst)
 SPI$Date <- SPI$date
 SPI$Date <- as.Date(SPI$Date)
 df_results$Date <- as.Date(df_results$Date, format = "%d/%m/%Y")
+
+#volledige dataset, combinatie van matchdata en SPI data, merged op basis van datum en thuisteam zodat alle data goed staat
 Full_dataset_alan <- left_join(df_results, SPI, by = c("Date", "HomeTeam"))
+
+#overbodige kolommen verwijderen en sommige namen veranderen
 Full_dataset_alan <- Full_dataset_alan[ , -which(names(Full_dataset_alan) %in% c("Div", "HTR", "HTHG", "HTAG", "club.x","club2.x", "season.y", "covid.x","covid.y" ,"club.y","club2","AwayTeam.y" ,"club2.y", "club.y","covid_occupancy.y", "covid_occupancy.x", "date", "date.y", "league_id", "AwayTeam.y", "score1", "score2", "stadium_size.y", "occupancy.y", "avg_attendance.y"))]
 names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_age_home.x'] <- 'avg_age_home'
 names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_age_home.y'] <- 'avg_age_away'
@@ -105,6 +140,8 @@ names(Full_dataset_alan)[names(Full_dataset_alan) == 'foreigners_home.y'] <- 'fo
 names(Full_dataset_alan)[names(Full_dataset_alan) == 'avg_attendance.x'] <- 'avg_attendance'
 names(Full_dataset_alan)[names(Full_dataset_alan) == 'stadium_size.x'] <- 'stadium_size'
 names(Full_dataset_alan)[names(Full_dataset_alan) == 'occupancy.x'] <- 'occupancy'
+
+#aantal variabelen toevoegen die ik ga gebruiken zoals de difference variabelen 
 full_dataset_alan <- Full_dataset_alan %>% mutate(yel_card_spread = AY - HY, rating_diff = spi1-spi2, xg_diff = xg1 - xg2, age_diff = avg_age_home - avg_age_away, red_card_spread = AR - HR, importance_diff = importance1 - importance2  )
 full_dataset_alan <- full_dataset_alan %>% mutate(covid = ifelse(Date > "2020-04-01", 1, 0))
 full_dataset_alan <- full_dataset_alan %>% mutate(home_win = ifelse(FTHG > FTAG, 1, 0))
@@ -125,6 +162,8 @@ full_dataset_alan <- full_dataset_alan %>% mutate(foreigners_spread = foreigners
 full_dataset_alan <- full_dataset_alan %>% mutate(percentage_points_home = home_points / (home_points + away_points))
 full_dataset_alan <- full_dataset_alan %>% mutate(percentage_points_away = away_points / (away_points + home_points))
 full_dataset_alan <- full_dataset_alan %>% mutate(Result = ifelse(FTHG > FTAG, "homewin", ifelse(FTHG < FTAG, "awaywin","draw")))
+
+#aantal variabelen weghalen 
 full_dataset_alan <-  full_dataset_alan[ , -which(names(full_dataset_alan) %in% c("FTR", "players_used_home", "players_used_away", "prob1", "prob2", "probtie", "proj_score1", "proj_score2", "nsxg1", "nsxg2", "adj_score1", "adj_score2", "home_points_percentage_total", "away_points_percentage_total"))]
 full_dataset_alan <- full_dataset_alan %>% mutate(crowdsize = ifelse(avg_attendance < 20000, "small", ifelse(avg_attendance > 20000 & avg_attendance < 40000, "medium", "large")))
 full_dataset_alan <- full_dataset_alan %>% mutate(crowd = ifelse(avg_attendance < 10000, "extrasmall", ifelse(avg_attendance > 10000 & avg_attendance < 20000, "small", ifelse(avg_attendance > 30000 & avg_attendance < 40000,"medium", ifelse(avg_attendance > 40000 & avg_attendance < 50000, "big", "large")))))
@@ -133,6 +172,8 @@ full_dataset_alan <- full_dataset_alan %>% mutate(CornerDifference = HC - AC)
 full_dataset_alan <- full_dataset_alan %>% mutate(ShotsDifference = HS - AC)
 full_dataset_alan <- full_dataset_alan %>% mutate(ShotsTargetDifference = HST - AST)
 full_dataset_alan <- full_dataset_alan %>% mutate(PercentagePointsDifference = percentage_points_home - percentage_points_away)
+
+#aantal kolomnamen die waren versprongen nieuwe naam geven
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='yel_card_spread')] <- 'YellowCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='red_card_spread')] <- 'RedCardDifference'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='foul_spread')] <- 'FoulDifference'
@@ -148,6 +189,8 @@ colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='foreigners_sprea
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='crowdsize')] <- 'Crowdsize'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='avg_attendance')] <- 'AverageAttendance'
 colnames(full_dataset_alan)[which(colnames(full_dataset_alan)=='diff_point')] <- 'PointsDifference'
+
+#attendance naar numeric en /1000
 full_dataset_alan$AverageAttendance <- as.numeric(full_dataset_alan$AverageAttendance)
 as.numeric(gsub(",","",full_dataset_alan$AverageAttendance,fixed=TRUE))
 full_dataset_alan <- full_dataset_alan %>% mutate(AverageAttendance = AverageAttendance/1000)
